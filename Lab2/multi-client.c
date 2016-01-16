@@ -17,10 +17,19 @@
 #define MAXDATASIZE 512
 #define MAXTHREADS 100
 
+struct argstruct {
+  char** argv;
+  int id;
+};  
+
 void *getfiles(void* args)
 {
   char** argv;
-  argv = (char **) args;
+  int id;
+  struct argstruct *arguments;
+  arguments = (struct argstruct *)args;
+  argv = arguments->argv;
+  id = arguments->id;
   int PORT = atoi(argv[2]);
 
   int sockfd, numbytes;
@@ -50,7 +59,7 @@ void *getfiles(void* args)
   }
 
   /* Do the connection stuff */
-  sprintf(msg,"get sample.txt");
+  sprintf(msg,"get files/sample.txt");
   send(sockfd,msg,100,0);
   while((numbytes = recv(sockfd,buf,MAXDATASIZE,0)) > 0) {
     printf("%s",buf);
@@ -67,7 +76,10 @@ void *getfiles(void* args)
 
 int main(int argc, char* argv[])
 {
-  getfiles((void *) argv);
+  struct argstruct args;
+  args.argv = (char**) argv;
+  args.id = 0;
+  getfiles((void *)&args);
   return 0;
 }
 
