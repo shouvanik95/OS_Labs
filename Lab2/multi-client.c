@@ -76,10 +76,18 @@ void *getfiles(void* args)
 
 int main(int argc, char* argv[])
 {
-  struct argstruct args;
-  args.argv = (char**) argv;
-  args.id = 0;
-  getfiles((void *)&args);
+  int numthreads = atoi(argv[3]);
+  pthread_t thr[MAXTHREADS];
+  int i;
+  struct argstruct args[MAXTHREADS];
+  for (i = 0; i<numthreads; i++)  {
+    args[i].argv = (char**) argv;
+    args[i].id = i;
+    pthread_create(&thr[i], NULL, getfiles, &args[i]);
+  }
+  for (i=0; i<numthreads; i++) {
+    pthread_join(thr[i],NULL);
+  }
   return 0;
 }
 
