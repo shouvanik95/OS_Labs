@@ -106,10 +106,14 @@ int main(int argc, char* argv[])
       if(fp == NULL) {
 	printf("Error opening file %s \n",filename);
       }
-      while((numbytes=fread(buf,1,MAXDATASIZE,fp)>0)) {
-      	printf("%s",buf);
+      numbytes=fread(buf,1,MAXDATASIZE,fp);
+      buf[numbytes-1] = '\0';
+      while(numbytes>0) {
+	printf("%s",buf);
 	bytes_sent += numbytes;
-      	send(new_fd,buf,MAXDATASIZE,0);
+	send(new_fd,buf,numbytes,0);
+	numbytes=fread(buf,1,MAXDATASIZE,fp);
+	buf[numbytes-1] = '\0';
       }
 
       /* Done serving client */

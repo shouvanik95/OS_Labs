@@ -59,7 +59,7 @@ void *getfiles(void* args)
   }
 
   /* Do the connection stuff */
-  sprintf(msg,"get files/foo1.txt");
+  sprintf(msg,"get files/sample.txt");
   send(sockfd,msg,100,0);
   while((numbytes = recv(sockfd,buf,MAXDATASIZE,0)) > 0) {
     printf("%s",buf);
