@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#include <time.h>
 #include <arpa/inet.h>
 #include <pthread.h>
 
@@ -25,12 +26,15 @@ struct argstruct {
 void *getfiles(void* args)
 {
   char** argv;
-  int id;
+  char* mode;
+  int id,f;
   struct argstruct *arguments;
   arguments = (struct argstruct *)args;
   argv = arguments->argv;
   id = arguments->id;
+  mode = argv[6];
   int PORT = atoi(argv[2]);
+  srand(time(NULL));
 
   int sockfd, numbytes;
   char msg[100];
@@ -59,10 +63,19 @@ void *getfiles(void* args)
   }
 
   /* Do the connection stuff */
-  sprintf(msg,"get files/sample.txt");
+
+  if(strcmp(mode,"fixed") == 0) {
+    printf("Fixed mode \n");
+    sprintf(msg,"get files/sample.txt");
+  }
+  else {
+    printf("Random mode \n");
+    f = (rand()%10000)+1;
+    sprintf(msg,"get files/foo%d.txt",f);
+  }
   send(sockfd,msg,100,0);
   while((numbytes = recv(sockfd,buf,MAXDATASIZE,0)) > 0) {
-    printf("%s",buf);
+    /* printf("%s",buf) */;
   }
   printf("\n");
   if(numbytes == -1) {
