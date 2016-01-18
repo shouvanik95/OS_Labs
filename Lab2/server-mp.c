@@ -32,6 +32,7 @@ int main(int argc, char* argv[])
   struct sockaddr_in my_addr; //server address info
   struct sockaddr_in their_addr; //client address info
   int sin_size; //size of sockaddr_in
+  int bytes_sent = 0; //bytes sent so far
   struct sigaction sa; //signal handler struct
   int yes = 1; //need an address set to 1
   int numbytes;
@@ -107,10 +108,12 @@ int main(int argc, char* argv[])
       }
       while((numbytes=fread(buf,1,MAXDATASIZE,fp)>0)) {
       	printf("%s",buf);
+	bytes_sent += numbytes;
       	send(new_fd,buf,MAXDATASIZE,0);
       }
 
       /* Done serving client */
+      printf("%d bytes sent",bytes_sent);
       
       close(new_fd);
       exit(0);
