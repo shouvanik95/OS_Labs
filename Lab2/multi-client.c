@@ -19,6 +19,9 @@
 #define MAXDATASIZE 512
 #define MAXTHREADS 100
 
+int success[MAXTHREADS];
+double times[MAXTHREADS];
+
 struct argstruct {
   char** argv;
   int id;
@@ -30,7 +33,7 @@ void *getfiles(void* args)
   char* mode;
   int id,f,runtime,sleeptime;
   struct argstruct *arguments;
-  struct timeval init, fin;
+  struct timeval init, fin, i1, f1;
   arguments = (struct argstruct *)args;
   argv = arguments->argv;
   id = arguments->id;
@@ -73,22 +76,28 @@ void *getfiles(void* args)
     /* Do the connection stuff */
 
     if(strcmp(mode,"fixed") == 0) {
-      printf("Fixed mode \n");
+      /* printf("Fixed mode \n"); */
       sprintf(msg,"get files/sample.txt");
     }
     else {
-      printf("Random mode \n");
+      /* printf("Random mode \n"); */
       f = (rand()%10000)+1;
       sprintf(msg,"get files/foo%d.txt",f);
     }
     send(sockfd,msg,100,0);
+    gettimeofday(&i1,NULL);
     while((numbytes = recv(sockfd,buf,MAXDATASIZE,0)) > 0) {
       /* printf("%s",buf) */;
     }
+    gettimeofday(&f1,NULL);
     /* printf("\n"); */
     if(numbytes == -1) {
       perror("recv");
       exit(-1);
+    }
+    else {
+      success[id]++;
+      times[id] += ((i1.tv_sec*1000000+i1.tv_usec)/(f1.tv_sec*1000000+f1.tv_usec))/1000000;
     }
     
     close(sockfd);
@@ -101,18 +110,33 @@ void *getfiles(void* args)
 
 int main(int argc, char* argv[])
 {
+  int totalsuccess=0;
+  double totaltime=0;
+  double throughput,meantime;
   int numthreads = atoi(argv[3]);
+  int rt = atoi(argv[4]);
   pthread_t thr[MAXTHREADS];
   int i;
   struct argstruct args[MAXTHREADS];
   for (i = 0; i<numthreads; i++)  {
     args[i].argv = (char**) argv;
     args[i].id = i;
+    success[i]=0;
+    times[i]=0;
     pthread_create(&thr[i], NULL, getfiles, &args[i]);
   }
   for (i=0; i<numthreads; i++) {
     pthread_join(thr[i],NULL);
   }
+  for (i=0; i<numthreads; i++) {
+    totalsuccess += success[i];
+    totaltime += times[i];
+  }
+  throughput = totalsuccess/rt;
+  meantime = totaltime/totalsuccess;
+  printf("Done! \n");
+  printf("Throughput = %f req/s \n",throughput);
+  printf("Average response time = %f sec \n",meantime);
   return 0;
 }
 
