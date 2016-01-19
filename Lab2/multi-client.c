@@ -97,7 +97,7 @@ void *getfiles(void* args)
     }
     else {
       success[id]++;
-      times[id] += ((i1.tv_sec*1000000+i1.tv_usec)/(f1.tv_sec*1000000+f1.tv_usec))/1000000;
+      times[id] += ((f1.tv_sec*1000000+f1.tv_usec)-(i1.tv_sec*1000000+i1.tv_usec));
     }
     
     close(sockfd);
@@ -111,7 +111,7 @@ void *getfiles(void* args)
 int main(int argc, char* argv[])
 {
   int totalsuccess=0;
-  double totaltime=0;
+  double totaltime=0.0;
   double throughput,meantime;
   int numthreads = atoi(argv[3]);
   int rt = atoi(argv[4]);
@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
     args[i].argv = (char**) argv;
     args[i].id = i;
     success[i]=0;
-    times[i]=0;
+    times[i]=0.0;
     pthread_create(&thr[i], NULL, getfiles, &args[i]);
   }
   for (i=0; i<numthreads; i++) {
@@ -134,6 +134,7 @@ int main(int argc, char* argv[])
   }
   throughput = totalsuccess/rt;
   meantime = totaltime/totalsuccess;
+  meantime = meantime/1000000;
   printf("Done! \n");
   printf("Throughput = %f req/s \n",throughput);
   printf("Average response time = %f sec \n",meantime);
