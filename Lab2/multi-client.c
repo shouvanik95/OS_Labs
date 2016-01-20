@@ -77,7 +77,7 @@ void *getfiles(void* args)
 
     if(strcmp(mode,"fixed") == 0) {
       /* printf("Fixed mode \n"); */
-      sprintf(msg,"get files/sample.txt");
+      sprintf(msg,"get files/foo1.txt");
     }
     else {
       /* printf("Random mode \n"); */

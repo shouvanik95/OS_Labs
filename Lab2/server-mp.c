@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
       numbytes=fread(buf,1,MAXDATASIZE,fp);
       buf[numbytes-1] = '\0';
       while(numbytes>0) {
-	printf("%s",buf);
+	/* printf("%s",buf); */
 	bytes_sent += numbytes;
 	send(new_fd,buf,numbytes,0);
 	numbytes=fread(buf,1,MAXDATASIZE,fp);
