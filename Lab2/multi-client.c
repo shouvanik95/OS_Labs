@@ -19,7 +19,7 @@
 #define MAXDATASIZE 512
 #define MAXTHREADS 100
 
-int success[MAXTHREADS];
+double success[MAXTHREADS];
 double times[MAXTHREADS];
 
 struct argstruct {
@@ -110,7 +110,7 @@ void *getfiles(void* args)
 
 int main(int argc, char* argv[])
 {
-  int totalsuccess=0;
+  double totalsuccess=0;
   double totaltime=0.0;
   double throughput,meantime;
   int numthreads = atoi(argv[3]);
