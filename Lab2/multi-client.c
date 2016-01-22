@@ -17,7 +17,7 @@
 #include <pthread.h>
 
 #define MAXDATASIZE 512
-#define MAXTHREADS 100
+#define MAXTHREADS 300
 
 double success[MAXTHREADS];
 double times[MAXTHREADS];
