@@ -92,7 +92,7 @@ void *getfiles(void* args)
     /* printf("\n"); */
     if(numbytes == -1) {
       perror("recv");
-      exit(-1);
+      continue;
     }
     else {
       success[id]++;
