@@ -41,7 +41,6 @@ void *getfiles(void* args)
   sleeptime = atoi(argv[5]);
   mode = argv[6];
   int PORT = atoi(argv[2]);
-  srand(time(NULL));
 
   int sockfd, numbytes;
   char msg[100];
@@ -118,6 +117,7 @@ int main(int argc, char* argv[])
   pthread_t thr[MAXTHREADS];
   int i;
   struct argstruct args[MAXTHREADS];
+  srand(time(NULL));
   for (i = 0; i<numthreads; i++)  {
     args[i].argv = (char**) argv;
     args[i].id = i;
