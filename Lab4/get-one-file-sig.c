@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
   sa.sa_handler = &sigint_handler;
   sa.sa_flags = SA_RESTART;
   sigemptyset(&sa.sa_mask);
-  if(sigaction(SIGHUP, &sa, NULL) == -1) {
+  if(sigaction(SIGINT, &sa, NULL) == -1) {
     perror("Error: cannot handle SIGINT");
   }
   
