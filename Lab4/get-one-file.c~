@@ -1,0 +1,27 @@
+/*
+** Client program to recieve the file
+*/
+
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <time.h>
+#include <arpa/inet.h>
+
+#define MAXDATASIZE 512
+
+int main(int argc, char* argv[])
+{
+  int sockfd, numbytes;
+  char msg[100];
+  char buf[MAXDATASIZE];
+  struct hostent *he;
+  struct sockaddr_in their_addr;
+}
