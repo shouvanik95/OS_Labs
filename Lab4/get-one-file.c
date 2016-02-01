@@ -23,12 +23,13 @@ int main(int argc, char* argv[])
   int PORT;
   char msg[100];
   char buf[MAXDATASIZE];
-  char* filename, displayopt;
+  char* filename;
+  char* displayopt;
   struct hostent *he;
   struct sockaddr_in their_addr;
 
   filename = argv[1];
-  PORT = argv[3];
+  PORT = atoi(argv[3]);
   displayopt = argv[4];
 
   if ((he=gethostbyname(argv[2])) == NULL) {
@@ -51,11 +52,11 @@ int main(int argc, char* argv[])
     exit(1);
   }
 
-  sprintf(msg,"get files/%s",filename);
+  sprintf(msg,"get %s",filename);
   send(sockfd,msg,100,0);
 
   while((numbytes = recv(sockfd,buf,MAXDATASIZE,0)) > 0) {
-    if(strcmp(displayopt,"display")) {
+    if(displayopt[0]=='d') {
       printf("%s",buf);
     }
   }
