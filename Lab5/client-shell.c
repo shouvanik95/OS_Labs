@@ -212,7 +212,6 @@ int getf1(char **args,char ** serverinfo)
   return 1;
 }
 
-
 int getsq(char **args,char ** serverinfo)
 {
 	if(args[1]==NULL)
@@ -265,6 +264,67 @@ int getsq(char **args,char ** serverinfo)
 	return 1;
 }
 
+int getpl(char **args,char ** serverinfo)
+{
+	if(args[1]==NULL)
+	{
+		fprintf(stderr, "Too less arguments. Argument should be of form \"getf1 <filename>\"\n");
+		return -1;
+	}
+	else
+	{
+		int i=1;
+		pid_t pid[64];
+		while(args[i]!=NULL)
+		{
+
+			pid[i-1] = fork();
+			if (pid[i-1] == 0) 
+			{
+			// Child process
+				char * myargs[6];
+				myargs[0]="./get-one-file-sig";
+				myargs[1]=args[i];
+				myargs[2]=serverinfo[0];
+				myargs[3]=serverinfo[1];
+				myargs[4]="nodisplay";
+				myargs[5]=NULL;
+				printf("Getting file %s\n",args[i]);
+				if (execvp(myargs[0], myargs) == -1) {
+					fprintf(stderr, "Executable ./get-one-file-sig doesn't exist.\n");
+				}
+				exit(EXIT_FAILURE);
+			} 
+			else if (pid[i-1] < 0) 
+			{
+				// Error forking
+				fprintf(stderr, "Error forking.\n");
+			} 
+			i++;
+		}	
+		// Parent process
+		i--;
+		i--;
+		int x=0;
+		do 
+		{
+			x=0;
+			for(;i>=0;i--)
+			{
+				int status;
+				pid_t wpid;
+				wpid = waitpid(pid[i], &status, WUNTRACED);
+				if(!WIFEXITED(status) && !WIFSIGNALED(status))
+				{
+					x=1;
+				}
+			}
+		} while (x==1);
+			
+	}
+	return 1;
+}
+
 int linux_default(char **args)
 {
 	pid_t pid, wpid;
@@ -304,10 +364,13 @@ void  main(void)
 	bool serverInitialized=0;
 	
 	serverInitialized=0;
-        serverinfo[0] = (char *)malloc(MAX_TOKEN_SIZE * sizeof(char));
+  serverinfo[0] = (char *)malloc(MAX_TOKEN_SIZE * sizeof(char));
 	serverinfo[1] = (char *)malloc(MAX_TOKEN_SIZE * sizeof(char));
+	///////////Remove this later
+	serverinfo[0]="127.0.0.1";
+	serverinfo[1]="5000";
+	serverInitialized=1;
 	///////////
-	
 	
 	while (1)
  {           
@@ -332,7 +395,7 @@ void  main(void)
 				printf("Server details changed succesfully.\nIP: %s \nPort: %s \n",serverinfo[0],serverinfo[1]);
 			}
 		}
-		else if(strcmp(tokens[0],"getf1")==0)
+		else if(strcmp(tokens[0],"getfl")==0)
 		{
 			if(serverInitialized==0)
 			{
@@ -353,6 +416,18 @@ void  main(void)
 			else
 			{
 				getsq(tokens,serverinfo);
+			}
+				
+		}
+		else if(strcmp(tokens[0],"getpl")==0)
+		{
+			if(serverInitialized==0)
+			{
+				fprintf(stderr, "Server details have not been initialized.\n");
+			}
+			else
+			{
+				getpl(tokens,serverinfo);
 			}
 				
 		}
