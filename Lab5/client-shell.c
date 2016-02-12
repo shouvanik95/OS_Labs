@@ -77,7 +77,7 @@ int server(char **args, char ** serverinfo)
 }
 
 
-int getf1(char **args)
+int getf1(char **args,char ** serverinfo)
 {
 	if(args[1]==NULL)
 	{
@@ -98,15 +98,22 @@ int getf1(char **args)
 		if (pid == 0) 
 		{
 		// Child process
+			args[0]="./get-one-file-sig";
+			args[2]=serverinfo[0];
+			args[3]=serverinfo[1];
+			
+			//Change this before submission
+			args[4]="display";
+			
 			if (execvp(args[0], args) == -1) {
-				perror("lsh");
+				fprintf(stderr, "Executable ./get-one-file-sig doesn't exist.\n");
 			}
 			exit(EXIT_FAILURE);
 		} 
 		else if (pid < 0) 
 		{
 			// Error forking
-			perror("lsh");
+			fprintf(stderr, "Error forking.\n");
 		} 
 		else 
 		{
@@ -158,6 +165,12 @@ void  main(void)
 	char * serverinfo[2];
 	bool serverInitialized=0;
 	
+	//Remove these before submission!!!
+	serverInitialized=1;
+	serverinfo[0]="127.0.0.1";
+	serverinfo[1]="5000";
+	///////////
+	
 	
 	while (1)
  {           
@@ -191,7 +204,7 @@ void  main(void)
 			}
 			else
 			{
-				
+				getf1(tokens,serverinfo);
 			}
 				
 		}
