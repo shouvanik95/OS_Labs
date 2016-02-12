@@ -98,14 +98,14 @@ int getf1(char **args,char ** serverinfo)
 		if (pid == 0) 
 		{
 		// Child process
-			args[0]="./get-one-file-sig";
-			args[2]=serverinfo[0];
-			args[3]=serverinfo[1];
-			
-			//Change this before submission
-			args[4]="display";
-			
-			if (execvp(args[0], args) == -1) {
+			char * myargs[6];
+			myargs[0]="./get-one-file-sig";
+			myargs[1]=args[1];
+			myargs[2]=serverinfo[0];
+			myargs[3]=serverinfo[1];
+			myargs[4]="display";
+			myargs[5]=NULL;
+			if (execvp(myargs[0], myargs) == -1) {
 				fprintf(stderr, "Executable ./get-one-file-sig doesn't exist.\n");
 			}
 			exit(EXIT_FAILURE);
@@ -122,6 +122,59 @@ int getf1(char **args,char ** serverinfo)
 			{
 				wpid = waitpid(pid, &status, WUNTRACED);
 			} while (!WIFEXITED(status) && !WIFSIGNALED(status));
+		}
+	}
+	return 1;
+}
+
+
+int getsq(char **args,char ** serverinfo)
+{
+	if(args[1]==NULL)
+	{
+		fprintf(stderr, "Too less arguments. Argument should be of form \"getf1 <filename>\"\n");
+		return -1;
+	}
+	else
+	{
+		int i=1;
+		while(args[i]!=NULL)
+		{
+			
+			pid_t pid, wpid;
+			int status;
+
+			pid = fork();
+			if (pid == 0) 
+			{
+			// Child process
+				char * myargs[6];
+				myargs[0]="./get-one-file-sig";
+				myargs[1]=args[i];
+				myargs[2]=serverinfo[0];
+				myargs[3]=serverinfo[1];
+				myargs[4]="nodisplay";
+				myargs[5]=NULL;
+				printf("Getting file %s\n",args[i]);
+				if (execvp(myargs[0], myargs) == -1) {
+					fprintf(stderr, "Executable ./get-one-file-sig doesn't exist.\n");
+				}
+				exit(EXIT_FAILURE);
+			} 
+			else if (pid < 0) 
+			{
+				// Error forking
+				fprintf(stderr, "Error forking.\n");
+			} 
+			else 
+			{
+				// Parent process
+				do 
+				{
+					wpid = waitpid(pid, &status, WUNTRACED);
+				} while (!WIFEXITED(status) && !WIFSIGNALED(status));
+			}
+			i++;
 		}
 	}
 	return 1;
@@ -205,6 +258,18 @@ void  main(void)
 			else
 			{
 				getf1(tokens,serverinfo);
+			}
+				
+		}
+		else if(strcmp(tokens[0],"getsq")==0)
+		{
+			if(serverInitialized==0)
+			{
+				fprintf(stderr, "Server details have not been initialized.\n");
+			}
+			else
+			{
+				getsq(tokens,serverinfo);
 			}
 				
 		}
