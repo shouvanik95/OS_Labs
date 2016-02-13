@@ -126,16 +126,29 @@ int getf1(char **args,char ** serverinfo)
 	}
     }
   
-  pid_t pid, wpid;
+  pid_t pid, wpid, cpid, wcpid;
   int status,fd;
+  int pfd[2];
 
+  if(dopipe) {
+    if (pipe(pfd) == -1)
+      {
+	fprintf(stderr,"Error opening pipe \n");
+      }
+  }
+  
   pid = fork();
   if (pid == 0) 
     {
-      // Child process
+      // Child process for get-one-file
       if(redirect) {
 	int fd = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	dup2(fd,1);
+      }
+
+      if(dopipe) {
+	close(pfd[0]);
+	dup2(pfd[1],1);
       }
 	
       char * myargs[6];
@@ -158,10 +171,43 @@ int getf1(char **args,char ** serverinfo)
   else 
     {
       // Parent process
-      do 
-	{
-	  wpid = waitpid(pid, &status, WUNTRACED);
-	} while (!WIFEXITED(status) && !WIFSIGNALED(status));
+      if(dopipe) {
+	cpid = fork();
+	if(cpid == 0) {
+	  //Second child for command
+	  close(pfd[1]);
+	  dup2(pfd[0],0);
+	  if (execvp(command, args + 3) == -1) {
+	    fprintf(stderr, "Command %s does not exist \n",command);
+	  }
+	  exit(EXIT_FAILURE);
+	}
+	else if(cpid < 0)
+	  {
+	    fprintf(stderr,"Error forking.\n");
+	  }
+	else
+	  {
+	    //parent process
+	    close(pfd[0]);
+	    close(pfd[1]);
+	    do 
+	      {
+		wpid = waitpid(pid, &status, WUNTRACED);
+	      } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+	    do 
+	      {
+		wcpid = waitpid(cpid, &status, WUNTRACED);
+	      } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+	  }
+      }
+      else {
+	//no piping same as before
+	do 
+	  {
+	    wpid = waitpid(pid, &status, WUNTRACED);
+	  } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+      }
     }
   return 1;
 }
