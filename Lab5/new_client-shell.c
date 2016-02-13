@@ -14,6 +14,7 @@
 
 pid_t background[64];
 int backcheck[64];
+int readcommand;
 
 void addbackground(pid_t a)
 {
@@ -319,7 +320,14 @@ int getsq(char **args,char ** serverinfo)
 void sigchld_handler(int s)
 {
 	if (s == SIGINT) {
-    printf("Received SIGINT;\n");
+		if(readcommand==1)
+		{
+			printf("\n");
+		}
+		else
+		{
+			printf("\nHello>");
+		}
     fflush(stdout);
   }
    else if( s == SIGCHLD)
@@ -491,6 +499,11 @@ void  main(void)
 	serverInitialized=0;
   serverinfo[0] = (char *)malloc(MAX_TOKEN_SIZE * sizeof(char));
 	serverinfo[1] = (char *)malloc(MAX_TOKEN_SIZE * sizeof(char));
+	
+	for(i=0;i<64;i++)
+	{
+		backcheck[i]=0;
+	}
 	///////////Remove this later
 	serverinfo[0]="127.0.0.1";
 	serverinfo[1]="5000";
@@ -510,11 +523,16 @@ void  main(void)
  {           
 		printf("Hello>");     
 		bzero(line, MAX_INPUT_SIZE);
-		gets(line);           
+		readcommand=0;
+		gets(line);   
+		readcommand=1;        
 		//~ printf("Got command %s\n", line);
 		line[strlen(line)] = '\n'; //terminate with new line
 		tokens = tokenize(line);
-
+		if(tokens[0]==NULL)
+		{
+			continue;
+		}
 		//do whatever you want with the commands, here we just print them
 		if(strcmp(tokens[0],"cd") == 0)
 		{
@@ -586,8 +604,9 @@ void  main(void)
 				free(tokens[i]);
 			}
 			free(tokens);
-			free(serverinfo[0]);
-			free(serverinfo[1]);
+			//Add these at the end
+			//~ free(serverinfo[0]);
+			//~ free(serverinfo[1]);
 			exit(1);	
 		}
 		else
