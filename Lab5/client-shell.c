@@ -69,10 +69,10 @@ int server(char **args, char ** serverinfo)
 		return -2;
 	}
 	else
-	{
-		serverinfo[0]=args[1];
-		serverinfo[1]=args[2];
-	}
+	  {
+	    strcpy(serverinfo[0],args[1]);
+	    strcpy(serverinfo[1],args[2]);
+	  }
 	return 1;
 }
 
@@ -218,16 +218,14 @@ void  main(void)
 	char * serverinfo[2];
 	bool serverInitialized=0;
 	
-	//Remove these before submission!!!
-	serverInitialized=1;
-	serverinfo[0]="127.0.0.1";
-	serverinfo[1]="5000";
+	serverInitialized=0;
+        serverinfo[0] = (char *)malloc(MAX_TOKEN_SIZE * sizeof(char));
+	serverinfo[1] = (char *)malloc(MAX_TOKEN_SIZE * sizeof(char));
 	///////////
 	
 	
 	while (1)
  {           
-	 
 		printf("Hello>");     
 		bzero(line, MAX_INPUT_SIZE);
 		gets(line);           
@@ -286,8 +284,8 @@ void  main(void)
 		}
 		free(tokens);
 	}
-
-
+	free(serverinfo[0]);
+	free(serverinfo[1]);
 }
 
                 
