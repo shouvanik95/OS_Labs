@@ -1,4 +1,5 @@
 #include  <stdio.h>
+#include  <fcntl.h>
 #include  <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
@@ -79,52 +80,90 @@ int server(char **args, char ** serverinfo)
 
 int getf1(char **args,char ** serverinfo)
 {
-	if(args[1]==NULL)
+  int dopipe = 0;
+  int redirect = 0;
+  char* filename;
+  char* command;
+  
+  if(args[1]==NULL)
+    {
+      fprintf(stderr, "Too less arguments. Argument should be of form \"getf1 <filename>\"\n");
+      return -1;
+    }
+  
+  if(args[2]!=NULL)
+    {
+      if(strcmp(args[2],">")==0)
 	{
-		fprintf(stderr, "Too less arguments. Argument should be of form \"getf1 <filename>\"\n");
-		return -1;
+	  if(args[3]==NULL)
+	    {
+	      fprintf(stderr, "Too less arguments. Argument should be of form \"getf1 <filename>\"\n");
+	      return -1;
+	    }
+	  else
+	    {
+	      redirect = 1;
+	      filename = args[3];
+	    }
 	}
-	else if(args[2]!=NULL)
+      else if(strcmp(args[2],"|")==0)
 	{
-		fprintf(stderr, "Too many arguments. Argument should be of form \"getf1 <filename>\"\n");
-		return -2;
+	  if(args[3]==NULL)
+	    {
+	      fprintf(stderr, "Too less arguments. Argument should be of form \"getf1 <filename>\"\n");
+	      return -1;
+	    }
+	  else
+	    {
+	      dopipe = 1;
+	      command = args[3];
+	    }
 	}
-	else
+      else
 	{
-		pid_t pid, wpid;
-		int status;
+	  fprintf(stderr, "Too many arguments. Argument should be of form \"getf1 <filename>\"\n");
+	  return -2;
+	}
+    }
+  
+  pid_t pid, wpid;
+  int status,fd;
 
-		pid = fork();
-		if (pid == 0) 
-		{
-		// Child process
-			char * myargs[6];
-			myargs[0]="./get-one-file-sig";
-			myargs[1]=args[1];
-			myargs[2]=serverinfo[0];
-			myargs[3]=serverinfo[1];
-			myargs[4]="display";
-			myargs[5]=NULL;
-			if (execvp(myargs[0], myargs) == -1) {
-				fprintf(stderr, "Executable ./get-one-file-sig doesn't exist.\n");
-			}
-			exit(EXIT_FAILURE);
-		} 
-		else if (pid < 0) 
-		{
-			// Error forking
-			fprintf(stderr, "Error forking.\n");
-		} 
-		else 
-		{
-			// Parent process
-			do 
-			{
-				wpid = waitpid(pid, &status, WUNTRACED);
-			} while (!WIFEXITED(status) && !WIFSIGNALED(status));
-		}
-	}
-	return 1;
+  pid = fork();
+  if (pid == 0) 
+    {
+      // Child process
+      if(redirect) {
+	int fd = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+	dup2(fd,1);
+      }
+	
+      char * myargs[6];
+      myargs[0]="./get-one-file-sig";
+      myargs[1]=args[1];
+      myargs[2]=serverinfo[0];
+      myargs[3]=serverinfo[1];
+      myargs[4]="display";
+      myargs[5]=NULL;
+      if (execvp(myargs[0], myargs) == -1) {
+	fprintf(stderr, "Executable ./get-one-file-sig doesn't exist.\n");
+      }
+      exit(EXIT_FAILURE);
+    } 
+  else if (pid < 0) 
+    {
+      // Error forking
+      fprintf(stderr, "Error forking.\n");
+    } 
+  else 
+    {
+      // Parent process
+      do 
+	{
+	  wpid = waitpid(pid, &status, WUNTRACED);
+	} while (!WIFEXITED(status) && !WIFSIGNALED(status));
+    }
+  return 1;
 }
 
 
