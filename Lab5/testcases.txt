@@ -1,0 +1,69 @@
+Hello>cd   
+Argument should be of form "cd <dir>"
+Hello>cd ..
+Hello>ls
+Lab2  Lab4  Lab5
+Hello>cd Lab5
+Hello>ls
+abc	      client-shell.c	  lab5.pdf	      pipetest	     x~
+abc~	      files		  make-tokens.c       server-slow    y
+backup.c      get-one-file-sig	  make-tokens.c~      server-slow.c  y~
+bbc	      get-one-file-sig.c  new_client-shell.c  shell
+client-shell  lab5_files.tgz	  ok.c		      x
+Hello>getfl x
+Server details have not been initialized.
+Hello>server 127.0.0.1 5000 
+Server details changed succesfully.
+IP: 127.0.0.1 
+Port: 5000 
+Hello>getfl
+Too less arguments. Argument should be of form "getfl <filename>"
+Hello>getfl x
+aaaaaaa
+Hello>getsq x y x y x x
+Getting file x
+^CReceived SIGINT; downloaded 8 bytes so far.
+
+Getting file y
+^C
+Received SIGINT; downloaded 8 bytes so far.
+Getting file x
+^C
+Received SIGINT; downloaded 8 bytes so far.
+Getting file y
+^C
+Received SIGINT; downloaded 0 bytes so far.
+Getting file x
+^C
+Received SIGINT; downloaded 8 bytes so far.
+Getting file x
+^C
+Received SIGINT; downloaded 8 bytes so far.
+Hello>getpl abc abc abc abc
+Getting file abc
+Getting file abc
+Getting file abc
+Getting file abc
+^C
+Received SIGINT; downloaded 512 bytes so far.
+Received SIGINT; downloaded 512 bytes so far.
+Received SIGINT; downloaded 512 bytes so far.
+Received SIGINT; downloaded 512 bytes so far.
+Hello>^C
+Hello>getbg x
+Hello>Background Process with 30546 PID Completed
+Hello>getbg y
+Hello>^C
+Hello>Background Process with 30548 PID Completed
+Hello>getfl abc | grep 'read'
+Hello>getfl abc | grep read
+• Read about and understand the structure of a typical shell: read an input string from the user,
+• Finally, we will also read through your code to check for clarity and correctness.
+Hello>getbg abc
+Hello>getbg abc
+Hello>^C  
+Hello>exit
+Killed background processes 
+Received SIGINT; downloaded 3584 bytes so far.
+Received SIGINT; downloaded 3072 bytes so far.
+
