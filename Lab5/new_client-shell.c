@@ -137,7 +137,7 @@ int getf1(char **args,char ** serverinfo)
   
   if(args[1]==NULL)
     {
-      fprintf(stderr, "Too less arguments. Argument should be of form \"getf1 <filename>\"\n");
+      fprintf(stderr, "Too less arguments. Argument should be of form \"getfl <filename>\"\n");
       return -1;
     }
   
@@ -147,7 +147,7 @@ int getf1(char **args,char ** serverinfo)
 	{
 	  if(args[3]==NULL)
 	    {
-	      fprintf(stderr, "Too less arguments. Argument should be of form \"getf1 <filename>\"\n");
+	      fprintf(stderr, "Too less arguments. Argument should be of form \"getfl <filename>\"\n");
 	      return -1;
 	    }
 	  else
@@ -160,7 +160,7 @@ int getf1(char **args,char ** serverinfo)
 	{
 	  if(args[3]==NULL)
 	    {
-	      fprintf(stderr, "Too less arguments. Argument should be of form \"getf1 <filename>\"\n");
+	      fprintf(stderr, "Too less arguments. Argument should be of form \"getfl <filename>\"\n");
 	      return -1;
 	    }
 	  else
@@ -171,7 +171,7 @@ int getf1(char **args,char ** serverinfo)
 	}
       else
 	{
-	  fprintf(stderr, "Too many arguments. Argument should be of form \"getf1 <filename>\"\n");
+	  fprintf(stderr, "Too many arguments. Argument should be of form \"getfl <filename>\"\n");
 	  return -2;
 	}
     }
@@ -266,7 +266,7 @@ int getsq(char **args,char ** serverinfo)
 {
 	if(args[1]==NULL)
 	{
-		fprintf(stderr, "Too less arguments. Argument should be of form \"getf1 <filename>\"\n");
+		fprintf(stderr, "Too less arguments. Argument should be of form \"getsq <filename> <filename> ... \"\n");
 		return -1;
 	}
 	else
@@ -332,9 +332,29 @@ void sigchld_handler(int s)
   }
    else if( s == SIGCHLD)
   {
-		while(1) {
-			waitpid(WAIT_ANY,NULL,WNOHANG);
+		int i;
+		for(i=0;i<64;i++)
+		{
+			if(backcheck[i]==1)
+			{
+				pid_t wpid=waitpid(background[i],NULL,WNOHANG);
+				if(wpid>0)
+				{
+					deletebackground(wpid);
+					if(readcommand==1)
+					{
+						printf("Background Process with %d PID Completed\n",wpid);
+					}
+					else
+					{
+						printf("Background Process with %d PID Completed\nHello>",wpid);
+					}
+				}
+				 fflush(stdout);
+			}
 		}
+			
+		
 	}
 }
 
@@ -400,7 +420,7 @@ int getpl(char **args,char ** serverinfo)
 {
 	if(args[1]==NULL)
 	{
-		fprintf(stderr, "Too less arguments. Argument should be of form \"getf1 <filename>\"\n");
+		fprintf(stderr, "Too less arguments. Argument should be of form \"getpl <filename>\"\n");
 		return -1;
 	}
 	else
@@ -505,9 +525,9 @@ void  main(void)
 		backcheck[i]=0;
 	}
 	///////////Remove this later
-	serverinfo[0]="127.0.0.1";
-	serverinfo[1]="5000";
-	serverInitialized=1;
+	//~ serverinfo[0]="127.0.0.1";
+	//~ serverinfo[1]="5000";
+	//~ serverInitialized=1;
 	///////////
 	
 	sa.sa_handler = sigchld_handler;
@@ -515,6 +535,10 @@ void  main(void)
   sa.sa_flags = SA_RESTART;
   
   if (sigaction(SIGINT, &sa, NULL) == -1) {
+    perror("sigaction");
+    exit(1);
+  }
+  if (sigaction(SIGCHLD, &sa, NULL) == -1) {
     perror("sigaction");
     exit(1);
   }
@@ -605,8 +629,8 @@ void  main(void)
 			}
 			free(tokens);
 			//Add these at the end
-			//~ free(serverinfo[0]);
-			//~ free(serverinfo[1]);
+			free(serverinfo[0]);
+			free(serverinfo[1]);
 			exit(1);	
 		}
 		else

@@ -11,54 +11,6 @@
 #define MAX_TOKEN_SIZE 64
 #define MAX_NUM_TOKENS 64
 
-
-pid_t background[64];
-int backcheck[64];
-int readcommand;
-
-void addbackground(pid_t a)
-{
-	int i=0;
-	for(i=0;i<64;i++)
-	{
-		if(backcheck[i]==0)
-		{
-			backcheck[i]=1;
-			background[i]=a;
-			return;
-		}
-	}
-	return;
-}
-
-void deletebackground(pid_t a)
-{
-	int i=0;
-	for(i=0;i<64;i++)
-	{
-		if(background[i]==a)
-		{
-			backcheck[i]=0;
-			return;
-		}
-	}
-	return;
-}
-
-void killbackground()
-{
-	int i=0;
-	for(i=0;i<64;i++)
-	{
-		if(backcheck[i]==1)
-		{
-			kill(background[i],SIGINT);
-		}
-	}
-	return;
-}
-
-
 char **tokenize(char *line)
 {
   char **tokens = (char **)malloc(MAX_NUM_TOKENS * sizeof(char *));
@@ -137,7 +89,7 @@ int getf1(char **args,char ** serverinfo)
   
   if(args[1]==NULL)
     {
-      fprintf(stderr, "Too less arguments. Argument should be of form \"getfl <filename>\"\n");
+      fprintf(stderr, "Too less arguments. Argument should be of form \"getf1 <filename>\"\n");
       return -1;
     }
   
@@ -147,7 +99,7 @@ int getf1(char **args,char ** serverinfo)
 	{
 	  if(args[3]==NULL)
 	    {
-	      fprintf(stderr, "Too less arguments. Argument should be of form \"getfl <filename>\"\n");
+	      fprintf(stderr, "Too less arguments. Argument should be of form \"getf1 <filename>\"\n");
 	      return -1;
 	    }
 	  else
@@ -160,7 +112,7 @@ int getf1(char **args,char ** serverinfo)
 	{
 	  if(args[3]==NULL)
 	    {
-	      fprintf(stderr, "Too less arguments. Argument should be of form \"getfl <filename>\"\n");
+	      fprintf(stderr, "Too less arguments. Argument should be of form \"getf1 <filename>\"\n");
 	      return -1;
 	    }
 	  else
@@ -171,7 +123,7 @@ int getf1(char **args,char ** serverinfo)
 	}
       else
 	{
-	  fprintf(stderr, "Too many arguments. Argument should be of form \"getfl <filename>\"\n");
+	  fprintf(stderr, "Too many arguments. Argument should be of form \"getf1 <filename>\"\n");
 	  return -2;
 	}
     }
@@ -266,7 +218,7 @@ int getsq(char **args,char ** serverinfo)
 {
 	if(args[1]==NULL)
 	{
-		fprintf(stderr, "Too less arguments. Argument should be of form \"getsq <filename> <filename> ... \"\n");
+		fprintf(stderr, "Too less arguments. Argument should be of form \"getf1 <filename>\"\n");
 		return -1;
 	}
 	else
@@ -293,7 +245,6 @@ int getsq(char **args,char ** serverinfo)
 				if (execvp(myargs[0], myargs) == -1) {
 					fprintf(stderr, "Executable ./get-one-file-sig doesn't exist.\n");
 				}
-				//~ signal(SIGINT,SIG_DFL);
 				exit(EXIT_FAILURE);
 			} 
 			else if (pid < 0) 
@@ -316,47 +267,18 @@ int getsq(char **args,char ** serverinfo)
 }
 
 
-
-void sigchld_handler(int s)
-{
-	if (s == SIGINT) {
-		if(readcommand==1)
-		{
-			printf("\n");
-		}
-		else
-		{
-			printf("\nHello>");
-		}
-    fflush(stdout);
-  }
-   else if( s == SIGCHLD)
-  {
-		int i;
-		for(i=0;i<64;i++)
-		{
-			if(backcheck[i]==1)
-			{
-				pid_t wpid=waitpid(background[i],NULL,WNOHANG);
-				if(wpid>0)
-				{
-					deletebackground(wpid);
-					if(readcommand==1)
-					{
-						printf("Background Process with %d PID Completed\n",wpid);
-					}
-					else
-					{
-						printf("Background Process with %d PID Completed\nHello>",wpid);
-					}
-				}
-				 fflush(stdout);
-			}
-		}
-			
-		
-	}
-}
+//~ void sigchld_handler(int s)
+//~ {
+	//~ if (s == SIGINT) {
+    //~ printf("Received SIGINT;\n");
+  //~ }
+  //~ else if( s == SIGCHLD)
+  //~ {
+		//~ while(1) {
+			//~ waitpid(WAIT_ANY,NULL,WNOHANG);
+		//~ }
+	//~ }
+//~ }
 
 int getbg(char **args,char ** serverinfo)
 {
@@ -384,6 +306,7 @@ int getbg(char **args,char ** serverinfo)
 			if (pid == 0) 
 			{
 			// Child process
+			
 				char * myargs[6];
 				myargs[0]="./get-one-file-sig";
 				myargs[1]=args[i];
@@ -406,8 +329,6 @@ int getbg(char **args,char ** serverinfo)
 			else 
 			{
 				// Parent process
-				addbackground(pid);
-				setpgid(pid,pid);
 				return pid;
 			}
 			i++;
@@ -420,7 +341,7 @@ int getpl(char **args,char ** serverinfo)
 {
 	if(args[1]==NULL)
 	{
-		fprintf(stderr, "Too less arguments. Argument should be of form \"getpl <filename>\"\n");
+		fprintf(stderr, "Too less arguments. Argument should be of form \"getf1 <filename>\"\n");
 		return -1;
 	}
 	else
@@ -434,7 +355,6 @@ int getpl(char **args,char ** serverinfo)
 			if (pid[i-1] == 0) 
 			{
 			// Child process
-			
 				char * myargs[6];
 				myargs[0]="./get-one-file-sig";
 				myargs[1]=args[i];
@@ -452,7 +372,7 @@ int getpl(char **args,char ** serverinfo)
 			{
 				// Error forking
 				fprintf(stderr, "Error forking.\n");
-			}
+			} 
 			i++;
 		}	
 		// Parent process
@@ -512,51 +432,40 @@ void  main(void)
 	char  line[MAX_INPUT_SIZE];            
 	char  **tokens;              
 	int i;
-	struct sigaction sa; //signal handler struct
+	//~ struct sigaction sa; //signal handler struct
 	char * serverinfo[2];
 	bool serverInitialized=0;
 	
 	serverInitialized=0;
   serverinfo[0] = (char *)malloc(MAX_TOKEN_SIZE * sizeof(char));
 	serverinfo[1] = (char *)malloc(MAX_TOKEN_SIZE * sizeof(char));
-	
-	for(i=0;i<64;i++)
-	{
-		backcheck[i]=0;
-	}
 	///////////Remove this later
-	//~ serverinfo[0]="127.0.0.1";
-	//~ serverinfo[1]="5000";
-	//~ serverInitialized=1;
+	serverinfo[0]="127.0.0.1";
+	serverinfo[1]="5000";
+	serverInitialized=1;
 	///////////
 	
-	sa.sa_handler = sigchld_handler;
-  sigemptyset(&sa.sa_mask);
-  sa.sa_flags = SA_RESTART;
-  
-  if (sigaction(SIGINT, &sa, NULL) == -1) {
-    perror("sigaction");
-    exit(1);
-  }
-  if (sigaction(SIGCHLD, &sa, NULL) == -1) {
-    perror("sigaction");
-    exit(1);
-  }
+	//~ sa.sa_handler = sigchld_handler;
+  //~ sigemptyset(&sa.sa_mask);
+  //~ sa.sa_flags = SA_RESTART;
+  //~ if (sigaction(SIGCHLD, &sa, NULL) == -1) {
+    //~ perror("sigaction");
+    //~ exit(1);
+  //~ }
+  //~ if (sigaction(SIGINT, &sa, NULL) == -1) {
+    //~ perror("sigaction");
+    //~ exit(1);
+  //~ }
   
 	while (1)
  {           
 		printf("Hello>");     
 		bzero(line, MAX_INPUT_SIZE);
-		readcommand=0;
-		gets(line);   
-		readcommand=1;        
+		gets(line);           
 		//~ printf("Got command %s\n", line);
 		line[strlen(line)] = '\n'; //terminate with new line
 		tokens = tokenize(line);
-		if(tokens[0]==NULL)
-		{
-			continue;
-		}
+
 		//do whatever you want with the commands, here we just print them
 		if(strcmp(tokens[0],"cd") == 0)
 		{
@@ -618,20 +527,6 @@ void  main(void)
 				getbg(tokens,serverinfo);
 			}
 				
-		}
-		else if(strcmp(tokens[0],"exit")==0)
-		{
-			killbackground();
-			printf("Killed background processes \n");
-			for(i=0;tokens[i]!=NULL;i++)
-			{
-				free(tokens[i]);
-			}
-			free(tokens);
-			//Add these at the end
-			free(serverinfo[0]);
-			free(serverinfo[1]);
-			exit(1);	
 		}
 		else
 		{

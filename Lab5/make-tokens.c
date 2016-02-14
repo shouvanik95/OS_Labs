@@ -195,6 +195,10 @@ void  main(void)
 			}
 				
 		}
+		else if(strcmp(tokens[0],"exit") == 0)
+		{
+			exit(1);
+		}
 		else
 		{
 			linux_default(tokens);

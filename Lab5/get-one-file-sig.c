@@ -26,6 +26,7 @@ void sigint_handler(int s)
     printf("Received SIGINT; downloaded %d bytes so far.\n",bytesdone);
     exit(0);
   }
+  
 }
 
 int main(int argc, char* argv[])
