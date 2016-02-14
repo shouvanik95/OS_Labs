@@ -1,0 +1,30 @@
+CS333 Spring 2016
+Lab 5 (Take Home)
+Goal
+In this assignment, we will understand processes and signals by building a custom shell-based client for
+the file server of Lab 2.
+Before you start
+• Read about and understand the structure of a typical shell: read an input string from the user,
+fork a child, exec a command executable, wait for the child, and repeat the process. Read
+about all variants of the wait and exec system calls - there are several of them, and you need to
+pick different variants under diffent circumstances.
+• Understand the basic structure of any shell code, e.g., the xv6 shell code.
+• Read the complete lab, especially the tips and guidelines towards the end of the lab carefully, to
+avoid spending too much time on some tricky parts of the lab.
+A shell-based client for the file server
+You will write a program called client-shell.c. When run, client-shell should ask the user
+for input commands, and execute them. Most commands will require the shell to fork one or more
+child processes, an xec some executable in the spawned processes. Use the string “Hello>” as your
+command prompt.
+Commands
+Below are the commands you must implement in your shell, and a description of what the shell must do
+for those commands.
+• cd directoryname must cause the shell process to change its working directory. This command
+should take one and only one argument; an incorrect number of arguments (e.g., commands
+such as cd, cd dir1 dir2 etc.) should print an error in the shell. cd should also return an
+errorifthe change directory command cannot be executed (e.g., because the directory does not
+exist). For this, and all commands below, incorrect number of arguments or incorrect command
+format should print an error in the shell. After such errors are printed by the shell, the shell should
+not crash. It must simply move on and prompt the user for the next command.
+1• server server-IP server-port should store the server IP and port details for future file
+downloads. There is no need for the shell to connect an chReceived SIGINT; downloaded 2048 bytes so far.
