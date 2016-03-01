@@ -58,22 +58,32 @@ int dequeue () {
   }
 }
 
-int main() {
-  int i,x;
-  for(i=0; i<25; i++) {
-    enqueue(i);
-  }
-  for(i=39; i<69; i++) {
-    enqueue(i);
-  }
-  x = dequeue();
-  while(x != -1) {
-    printf("%d ",x);
-    x = dequeue();
-  }
-  printf("\n");
+pthread_mutex_t queue_mutex;
+
+int has_space;
+pthread_mutex_t has_space_mutex;
+pthread_cond_t has_space_cv;
+
+int not_empty;
+pthread_mutex_t not_empty_mutex;
+pthread_cond_t not_empty_cv;
+
+void initialize_flags() {
+  pthread_mutex_init (&queue_mutex,NULL);
+  has_space=0;
+  pthread_mutex_init (&has_space_mutex,NULL);
+  pthread_cond_init (&has_space_cv,NULL);
+  not_empty=0;
+  pthread_mutex_init (&not_empty_mutex,NULL);
+  pthread_cond_init (&not_empty_cv,NULL);
+}  
+
+int main(int argc, char *argv[])
+{
+  initialize_flags();
   return 0;
 }
+
     
   
     
