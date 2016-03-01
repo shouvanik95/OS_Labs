@@ -60,20 +60,18 @@ int dequeue () {
 
 pthread_mutex_t queue_mutex;
 
-int has_space;
+int reqcount;
 pthread_mutex_t has_space_mutex;
 pthread_cond_t has_space_cv;
 
-int not_empty;
 pthread_mutex_t not_empty_mutex;
 pthread_cond_t not_empty_cv;
 
 void initialize_flags() {
   pthread_mutex_init (&queue_mutex,NULL);
-  has_space=0;
+  reqcount=0;
   pthread_mutex_init (&has_space_mutex,NULL);
   pthread_cond_init (&has_space_cv,NULL);
-  not_empty=0;
   pthread_mutex_init (&not_empty_mutex,NULL);
   pthread_cond_init (&not_empty_cv,NULL);
 }
@@ -132,6 +130,12 @@ int main(int argc, char *argv[])
   }
 
   while(1) {
+    sin_size = sizeof(struct sockaddr_in);
+    if ((new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size)) == -1) {
+      perror("accept");
+      continue;
+    }
+    printf("server: got connection from %s \n", inet_ntoa(their_addr.sin_addr));
   }
 
   for(i=0; i<numthreads; i++) {
