@@ -16,7 +16,7 @@
 
 #define BACKLOG 10
 #define MAXDATASIZE 512
-#define MAXQUEUESIZE 1000
+#define MAXTHREADS 300
 
 struct request {
   int socketfd;
@@ -76,11 +76,68 @@ void initialize_flags() {
   not_empty=0;
   pthread_mutex_init (&not_empty_mutex,NULL);
   pthread_cond_init (&not_empty_cv,NULL);
-}  
+}
+
+void* handle_request (void* args) {
+}
 
 int main(int argc, char *argv[])
 {
+  int i;
+  int MYPORT = atoi(argv[1]);
+  int numthreads = atoi(argv[2]);
+  int maxqueue = atoi(argv[3]);
+
+  pthread_t thr[MAXTHREADS];
+
+  int sockfd; //listening socket
+  int new_fd; //socket for new connection
+  struct sockaddr_in my_addr; //server address info
+  struct sockaddr_in their_addr; //client address info
+  int sin_size; //size of sockaddr_in
+  int bytes_sent = 0; //bytes sent so far
+  int yes = 1; //need an address set to 1
+  
   initialize_flags();
+
+  printf("Started server on port %d \n", MYPORT);
+
+  for(i=0; i<numthreads; i++) {
+    pthread_create(&thr[i], NULL, handle_request, NULL);
+  }
+
+  if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+    perror("socket");
+    exit(1);
+  }
+
+  if (setsockopt(sockfd,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int)) == -1) {
+    perror("setsockopt");
+    exit(1);
+  }
+
+  my_addr.sin_family = AF_INET; //host byte order
+  my_addr.sin_port = htons(MYPORT); //short, network byte order
+  my_addr.sin_addr.s_addr = INADDR_ANY; //automatically fill my IP
+  bzero(&(my_addr.sin_zero), 8); //zero the rest of the struct
+
+  if (bind(sockfd, (struct sockaddr *)&my_addr, sizeof(struct sockaddr)) == -1) {
+    perror("bind");
+    exit(1);
+  }
+
+  if (listen(sockfd, BACKLOG) == -1) {
+    perror("listen");
+    exit(1);
+  }
+
+  while(1) {
+  }
+
+  for(i=0; i<numthreads; i++) {
+    pthread_join(thr[i],NULL);
+  }
+  
   return 0;
 }
 
