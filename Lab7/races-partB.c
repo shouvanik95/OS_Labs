@@ -30,15 +30,15 @@ struct argstruct {
 
 void *update(void* args)
 {
-	int i;
-	for(i=0;i<k;i++)
-	{
-	while(locked);
-		locked=1;
-		count++;
-		locked=0;
+  int i;
+  for(i=0;i<k;i++)
+    {
+      while(locked);
+      locked=1;
+      count++;
+      locked=0;
 	
-	}
+    }
 }
 
 int main(int argc, char* argv[])
