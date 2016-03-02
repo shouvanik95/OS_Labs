@@ -96,25 +96,61 @@ void initialize_flags() {
 
 void* handle_request (void* args) {
   int new_fd;
+  int bytes_sent;
   int numbytes;
   char cmd[100];
   char buf[MAXDATASIZE];
   FILE* fp;
   char filename[100];
 
-  pthread_mutex_lock(&not_empty_mutex);
-  while(reqcount < 1)
-    pthread_cond_wait(&not_empty_cv,&not_empty_mutex);
-  pthread_mutex_unlock(&not_empty_mutex);
+  while(1) {
+    bytes_sent=0;
+    
+    pthread_mutex_lock(&not_empty_mutex);
+    while(reqcount < 1)
+      pthread_cond_wait(&not_empty_cv,&not_empty_mutex);
+    pthread_mutex_unlock(&not_empty_mutex);
 
-  pthread_mutex_lock(&queue_mutex);
-  new_fd = dequeue();
-  pthread_mutex_unlock(&queue_mutex);
+    pthread_mutex_lock(&queue_mutex);
+    new_fd = dequeue();
+    pthread_mutex_unlock(&queue_mutex);
 
-  pthread_mutex_lock(&has_space_mutex);
-  reqcount--;
-  pthread_cond_signal(&has_space_cv);
-  pthread_mutex_unlock(&has_space_mutex);
+    pthread_mutex_lock(&has_space_mutex);
+    reqcount--;
+    pthread_cond_signal(&has_space_cv);
+    pthread_mutex_unlock(&has_space_mutex);
+
+    //get command
+    if ((numbytes = recv(new_fd,cmd,100,0))== -1) {
+      perror("recv");
+      exit(1);
+    }
+
+    //extract filename
+    bzero(filename,100);
+    strcpy(filename,cmd+4);
+    printf("Requested file: %s \n",filename);
+
+    //read from file and send data
+    fp = fopen(filename,"rb");
+    if(fp == NULL) {
+      printf("Error opening file %s \n",filename);
+    }
+    numbytes=fread(buf,1,MAXDATASIZE,fp);
+    buf[numbytes-1] = '\0';
+    while(numbytes>0) {
+      /* printf("%s",buf); */
+      bytes_sent += numbytes;
+      send(new_fd,buf,numbytes,0);
+      numbytes=fread(buf,1,MAXDATASIZE,fp);
+      buf[numbytes-1] = '\0';
+    }
+
+    /* Done serving client */
+    printf("%d bytes sent",bytes_sent);
+      
+    close(new_fd);
+  }
 }
 
 int main(int argc, char *argv[])
