@@ -58,6 +58,24 @@ int dequeue () {
   }
 }
 
+void printqueue () {
+  struct request* tmp = head;
+  while(tmp != NULL) {
+    printf("%d ",tmp->socketfd);
+    tmp = tmp->next;
+  }
+  printf("\n");
+}
+
+void delqueue () {
+  struct request* tmp;
+  while(head != NULL) {
+    tmp = head;
+    head = head->next;
+    free(tmp);
+  }
+}
+
 pthread_mutex_t queue_mutex;
 
 int reqcount;
@@ -77,6 +95,26 @@ void initialize_flags() {
 }
 
 void* handle_request (void* args) {
+  int new_fd;
+  int numbytes;
+  char cmd[100];
+  char buf[MAXDATASIZE];
+  FILE* fp;
+  char filename[100];
+
+  pthread_mutex_lock(&not_empty_mutex);
+  while(reqcount < 1)
+    pthread_cond_wait(&not_empty_cv,&not_empty_mutex);
+  pthread_mutex_unlock(&not_empty_mutex);
+
+  pthread_mutex_lock(&queue_mutex);
+  new_fd = dequeue();
+  pthread_mutex_unlock(&queue_mutex);
+
+  pthread_mutex_lock(&has_space_mutex);
+  reqcount--;
+  pthread_cond_signal(&has_space_cv);
+  pthread_mutex_unlock(&has_space_mutex);
 }
 
 int main(int argc, char *argv[])
@@ -131,17 +169,34 @@ int main(int argc, char *argv[])
 
   while(1) {
     sin_size = sizeof(struct sockaddr_in);
+    
+    pthread_mutex_lock(&has_space_mutex);
+    while(reqcount >= maxqueue)
+      pthread_cond_wait(&has_space_cv, &has_space_mutex);
+    pthread_mutex_unlock(&has_space_mutex);
+    
     if ((new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size)) == -1) {
       perror("accept");
       continue;
     }
     printf("server: got connection from %s \n", inet_ntoa(their_addr.sin_addr));
+
+    pthread_mutex_lock(&queue_mutex);
+    enqueue(new_fd);
+    pthread_mutex_unlock(&queue_mutex);
+
+    pthread_mutex_lock(&not_empty_mutex);
+    reqcount++;
+    pthread_cond_signal(&not_empty_cv);
+    pthread_mutex_unlock(&not_empty_mutex);
   }
 
   for(i=0; i<numthreads; i++) {
     pthread_join(thr[i],NULL);
   }
-  
+
+  delqueue();
+  close(sockfd);
   return 0;
 }
 
