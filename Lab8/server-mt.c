@@ -78,17 +78,14 @@ void delqueue () {
 
 pthread_mutex_t queue_mutex;
 
-int emptyslots;
+int reqcount;
 pthread_mutex_t has_space_mutex;
 pthread_cond_t has_space_cv;
-
-int reqcount;
 pthread_mutex_t not_empty_mutex;
 pthread_cond_t not_empty_cv;
 
 void initialize_flags(int maxslots) {
   pthread_mutex_init (&queue_mutex,NULL);
-  emptyslots = maxslots;
   pthread_mutex_init (&has_space_mutex,NULL);
   pthread_cond_init (&has_space_cv,NULL);
   reqcount = 0;
@@ -111,6 +108,7 @@ void* handle_request (void* args) {
     pthread_mutex_lock(&not_empty_mutex);
     while(reqcount < 1)
       pthread_cond_wait(&not_empty_cv,&not_empty_mutex);
+    reqcount--;
     pthread_mutex_unlock(&not_empty_mutex);
 
     pthread_mutex_lock(&queue_mutex);
@@ -118,7 +116,6 @@ void* handle_request (void* args) {
     pthread_mutex_unlock(&queue_mutex);
 
     pthread_mutex_lock(&has_space_mutex);
-    reqcount--;
     pthread_cond_signal(&has_space_cv);
     pthread_mutex_unlock(&has_space_mutex);
 
@@ -152,7 +149,7 @@ void* handle_request (void* args) {
 
     /* Done serving client */
     printf("%d bytes sent \n",bytes_sent);
-      
+    fclose(fp);
     close(new_fd);
   }
 }
@@ -211,7 +208,7 @@ int main(int argc, char *argv[])
     sin_size = sizeof(struct sockaddr_in);
     
     pthread_mutex_lock(&has_space_mutex);
-    while(emptyslots <= 0)
+    while(reqcount >= maxqueue)
       pthread_cond_wait(&has_space_cv, &has_space_mutex);
     pthread_mutex_unlock(&has_space_mutex);
     
