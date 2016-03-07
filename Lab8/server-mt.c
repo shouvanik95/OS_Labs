@@ -77,7 +77,7 @@ void delqueue () {
 }
 
 pthread_mutex_t queue_mutex;
-
+int emptyslots;
 int reqcount;
 pthread_mutex_t has_space_mutex;
 pthread_cond_t has_space_cv;
@@ -86,6 +86,7 @@ pthread_cond_t not_empty_cv;
 
 void initialize_flags(int maxslots) {
   pthread_mutex_init (&queue_mutex,NULL);
+  emptyslots = maxslots;
   pthread_mutex_init (&has_space_mutex,NULL);
   pthread_cond_init (&has_space_cv,NULL);
   reqcount = 0;
@@ -116,6 +117,7 @@ void* handle_request (void* args) {
     pthread_mutex_unlock(&queue_mutex);
 
     pthread_mutex_lock(&has_space_mutex);
+    emptyslots++;
     pthread_cond_signal(&has_space_cv);
     pthread_mutex_unlock(&has_space_mutex);
 
@@ -208,8 +210,9 @@ int main(int argc, char *argv[])
     sin_size = sizeof(struct sockaddr_in);
     
     pthread_mutex_lock(&has_space_mutex);
-    while(reqcount >= maxqueue)
+    while(emptyslots <= 0)
       pthread_cond_wait(&has_space_cv, &has_space_mutex);
+    emptyslots--;
     pthread_mutex_unlock(&has_space_mutex);
     
     if ((new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size)) == -1) {
