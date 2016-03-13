@@ -17,7 +17,7 @@
 #include <pthread.h>
 
 #define MAXDATASIZE 512
-#define MAXTHREADS 300
+#define MAXTHREADS 1000
 
 double success[MAXTHREADS];
 double times[MAXTHREADS];
@@ -69,7 +69,10 @@ void *getfiles(void* args)
 
     if (connect(sockfd, (struct sockaddr *)&their_addr,sizeof(struct sockaddr)) == -1) {
       perror("connect");
-      exit(1);
+      close(sockfd);
+      sleep(sleeptime);
+			gettimeofday(&fin,NULL);
+      continue;
     }
 
     /* Do the connection stuff */
@@ -92,6 +95,9 @@ void *getfiles(void* args)
     /* printf("\n"); */
     if(numbytes == -1) {
       perror("recv");
+      close(sockfd);
+      sleep(sleeptime);
+			gettimeofday(&fin,NULL);
       continue;
     }
     else {
