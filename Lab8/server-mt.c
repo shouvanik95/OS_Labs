@@ -25,6 +25,7 @@ struct request {
 
 struct request* head = NULL;
 struct request* tail = NULL;
+int limit_queue;
 
 void enqueue (int sfd) {
   struct request* tmp  = (struct request*)malloc(sizeof(struct request*));
@@ -116,10 +117,12 @@ void* handle_request (void* args) {
     new_fd = dequeue();
     pthread_mutex_unlock(&queue_mutex);
 
-    pthread_mutex_lock(&has_space_mutex);
-    emptyslots++;
-    pthread_cond_signal(&has_space_cv);
-    pthread_mutex_unlock(&has_space_mutex);
+    if(limit_queue) {
+      pthread_mutex_lock(&has_space_mutex);
+      emptyslots++;
+      pthread_cond_signal(&has_space_cv);
+      pthread_mutex_unlock(&has_space_mutex);
+    }
 
     printf("Got socket %d\n",new_fd);
 
@@ -172,6 +175,8 @@ int main(int argc, char *argv[])
   int sin_size; //size of sockaddr_in
   int bytes_sent = 0; //bytes sent so far
   int yes = 1; //need an address set to 1
+
+  limit_queue = maxqueue;
   
   initialize_flags(maxqueue);
 
@@ -209,11 +214,13 @@ int main(int argc, char *argv[])
   while(1) {
     sin_size = sizeof(struct sockaddr_in);
     
-    pthread_mutex_lock(&has_space_mutex);
-    while(emptyslots <= 0)
-      pthread_cond_wait(&has_space_cv, &has_space_mutex);
-    emptyslots--;
-    pthread_mutex_unlock(&has_space_mutex);
+    if(limit_queue > 0) {
+      pthread_mutex_lock(&has_space_mutex);
+      while(emptyslots <= 0)
+	pthread_cond_wait(&has_space_cv, &has_space_mutex);
+      emptyslots--;
+      pthread_mutex_unlock(&has_space_mutex);
+    }
     
     if ((new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size)) == -1) {
       perror("accept");
