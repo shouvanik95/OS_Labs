@@ -1,0 +1,31 @@
+ ps -au | grep ./a.out | cut -d " " -f 2
+cat /proc/11601/status | grep 'Vm'
+free && sync && echo 3 > /proc/sys/vm/drop_caches && free
+
+
+Part A:
+
+1.
+VM-Alloc: 4192kB
+VM-RSS: 356kB
+
+2.
+VM-Alloc: 4196kB
+VM-RSS: 356kB
+
+3.
+VM-Alloc: 4200kB
+VM-RSS: 356kB
+
+4.
+VM-Alloc: 4200kB
+VM-RSS: 356kB
+
+Part B:
+
+1. 8.24Bytes/microsec
+2. 10.497Bytes/microsec
+3??
+4>??>>?>?>
+
+
