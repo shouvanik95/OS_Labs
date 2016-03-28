@@ -29,6 +29,7 @@ void one()
 		free(filename);
 	}
 }
+
 void five()
 {
 	for(a=0;a<25;a++)
@@ -46,6 +47,25 @@ void five()
 		munmap(data,10485760);
 	}
 }
+
+void eight_ord()
+{
+	for(a=0;a<3;a++)
+	{
+		char *filename;
+		asprintf(&filename, "%d", a);
+		fd[a] = open(filename, O_RDWR);
+		data = mmap((caddr_t)0, 10485760, PROT_WRITE, MAP_SHARED, fd[a],0);
+		int b;
+		for(b=0;b<10485760;b++)
+		{
+			data[b]='b';
+		}
+		free(filename);
+		munmap(data,10485760);
+	}
+}
+
 void two()
 {
 	for(a=0;a<25;a++)
@@ -80,14 +100,32 @@ void six()
 	}
 }
 
+void eight_mmap()
+{
+	for(a=0;a<3;a++)
+	{
+		char *filename;
+		asprintf(&filename, "%d", a);
+		
+		fd[a] = open(filename, O_RDWR);
+		char buf[512]; 
+		int i;
+		for(i=0;i<512;i++){buf[i]='a';}
+		for(i=0;i<1024*1024*10;i+=512)
+		{
+			write(fd[a],buf,(size_t)512);
+		}
+	}
+}
+
 int main()
 {
 struct timeval init, fin;
 gettimeofday(&init,NULL); //initial time
 pagesize = getpagesize();
-two();
+eight_mmap();
 gettimeofday(&fin,NULL);
 printf("%d\n",pagesize);
-printf("%f\n",25.0*10485760/((fin.tv_sec-init.tv_sec)*1000000+(fin.tv_usec-init.tv_usec)));
+printf("%f\n",3.0*10485760/((fin.tv_sec-init.tv_sec)*1000000+(fin.tv_usec-init.tv_usec)));
 return 0;
 }

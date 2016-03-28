@@ -183,6 +183,12 @@ The write throughut in this case using ordinary writes is much less than that ob
 7->
 Frm the exercises above it is clear that using memory mapped files gives significant performance benefits over regular files, when there are a large number of writes and the file contents are not in the disk buffer cache, as it allows us to perform writes largely to memory instead of repeatedly writing to disk. It also has the advantage of not requiring pages to be copied for the kernel space in memory to the user space while performing file reads.
 
+8->
+Throughput with ordinary files: 282.166031 MBps
+Throughput with memory mapped files: 298.719743 MBps
+
+We see that we do not obtain a significant advantage from memory mapped files as opposed to ordinary files in this case. The number of writes is smaller and each write takes less time due to cacheing, leading to high throughput in both cases and no major advantage for memory mapping.
+
 
 
 
