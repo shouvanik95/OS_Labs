@@ -10,22 +10,49 @@ VM-Alloc: 4192kB
 VM-RSS: 356kB
 
 2.
-VM-Alloc: 4196kB
+VM-Alloc: 14432kB
 VM-RSS: 356kB
 
 3.
-VM-Alloc: 4200kB
+VM-Alloc: 14436kB
 VM-RSS: 356kB
 
 4.
-VM-Alloc: 4200kB
+VM-Alloc: 14436 kB
 VM-RSS: 356kB
 
 Part B:
 
-1. 8.24Bytes/microsec
-2. 10.497Bytes/microsec
-3??
-4>??>>?>?>
+1. 10.680292MBps
+2. 10.497MBps
+3.
+4. 
+
+One:
+             total       used       free     shared    buffers     cached
+Mem:          7885       1951       5934        224          1        880
+-/+ buffers/cache:       1069       6816
+Swap:            0          0          0
+
+Two:
+           total       used       free     shared    buffers     cached
+Mem:          7885       1972       5913        219          6        893
+-/+ buffers/cache:       1072       6813
+Swap:            0          0          0
+
+
+
+
+
+5.
+
+250MB/50.476seconds
+
+6.
+
+
+7.
+
+
 
 

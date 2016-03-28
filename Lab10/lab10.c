@@ -13,7 +13,7 @@ char *data;
 fd = open("myfile", O_RDONLY);
 pagesize = getpagesize();
 getchar();   
-data = mmap((caddr_t)0, pagesize, PROT_READ, MAP_SHARED, fd,pagesize);
+data = mmap((caddr_t)0, 1024*1024*10, PROT_READ, MAP_SHARED, fd,0);
 getchar();   
 printf("%d",data[0]);
 getchar();   

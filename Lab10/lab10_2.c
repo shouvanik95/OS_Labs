@@ -71,7 +71,7 @@ void six()
 		f_read[a] = fopen(filename, "rw");
 		char buf[512]; 
 		
-		while (fwrite(buf, 512, 1, f_read[a]) == 1) { 
+		while (fwrite(buf, 1, 512, f_read[a]) > 0 ) { 
 		} 
 		free(filename);
 	}
@@ -82,7 +82,7 @@ int main()
 struct timeval init, fin;
 gettimeofday(&init,NULL); //initial time
 pagesize = getpagesize();
-one();
+six();
 gettimeofday(&fin,NULL);
 printf("%d\n",pagesize);
 printf("%f\n",25.0*10485760/((fin.tv_sec-init.tv_sec)*1000000+(fin.tv_usec-init.tv_usec)));
