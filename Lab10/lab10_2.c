@@ -40,9 +40,10 @@ void five()
 		int b;
 		for(b=0;b<10485760;b++)
 		{
-			data[b]=(data[b]+1)%256;
+			data[b]='b';
 		}
 		free(filename);
+		munmap(data,10485760);
 	}
 }
 void two()
@@ -68,12 +69,14 @@ void six()
 		char *filename;
 		asprintf(&filename, "%d", a);
 		
-		f_read[a] = fopen(filename, "rw");
+		fd[a] = open(filename, O_RDWR);
 		char buf[512]; 
-		
-		while (fwrite(buf, 1, 512, f_read[a]) > 0 ) { 
-		} 
-		free(filename);
+		int i;
+		for(i=0;i<512;i++){buf[i]='a';}
+		for(i=0;i<1024*1024*10;i+=512)
+		{
+			write(fd[a],buf,(size_t)512);
+		}
 	}
 }
 
@@ -82,7 +85,7 @@ int main()
 struct timeval init, fin;
 gettimeofday(&init,NULL); //initial time
 pagesize = getpagesize();
-six();
+two();
 gettimeofday(&fin,NULL);
 printf("%d\n",pagesize);
 printf("%f\n",25.0*10485760/((fin.tv_sec-init.tv_sec)*1000000+(fin.tv_usec-init.tv_usec)));

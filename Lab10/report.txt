@@ -23,33 +23,73 @@ VM-RSS: 356kB
 
 Part B:
 
-1. 10.680292MBps
+1. 10.
+
+4096
+216.804356
+
+real	0m1.217s
+user	0m0.762s
+sys	0m0.075s
+
 2. 10.497MBps
+
+4096
+211.978794
+
+real	0m1.238s
+user	0m0.053s
+sys	0m0.110s
+
+
 3.
 4. 
 
 One:
+
              total       used       free     shared    buffers     cached
-Mem:          7885       1951       5934        224          1        880
--/+ buffers/cache:       1069       6816
+Mem:          7885       1456       6429        205          3        616
+-/+ buffers/cache:        836       7049
 Swap:            0          0          0
+labuser@osl-15:/$ free -m
+             total       used       free     shared    buffers     cached
+Mem:          7885       1696       6189        205          3        856
+-/+ buffers/cache:        835       7050
+Swap:            0          0          0
+
 
 Two:
-           total       used       free     shared    buffers     cached
-Mem:          7885       1972       5913        219          6        893
--/+ buffers/cache:       1072       6813
-Swap:            0          0          0
 
+             total       used       free     shared    buffers     cached
+Mem:          7885       1468       6417        205          5        619
+-/+ buffers/cache:        842       7043
+Swap:            0          0          0
+labuser@osl-15:/$ free -m
+             total       used       free     shared    buffers     cached
+Mem:          7885       1740       6145        206          9        887
+-/+ buffers/cache:        843       7042
+Swap:            0          0          0
 
 
 
 
 5.
 
-250MB/50.476seconds
+4096
+212.955531
+
+real	0m1.233s
+user	0m0.834s
+sys	0m0.115s
+
 
 6.
 
+23.585518
+
+real	0m11.116s
+user	0m0.043s
+sys	0m2.378s
 
 7.
 
