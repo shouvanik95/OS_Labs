@@ -22,6 +22,8 @@
 double success[MAXTHREADS];
 double times[MAXTHREADS];
 
+//Hey I made a change
+
 struct argstruct {
   char** argv;
   int id;
